@@ -1,3 +1,4 @@
+currentBuild.displayName = "Calculator-#"+currentBuild.number
 pipeline {
     agent any
     stages {
@@ -22,17 +23,18 @@ pipeline {
         stage('Package') {
             steps {
                 echo 'Package....'
-                sh 'mvn package'
+                sh 'mvn clean package'
             }
         }
        stage('Deploy') {
-            steps {
+           steps {
                echo 'Deploy...'
                sshagent(['tomcat_pwd']) {
                sh """
-                  ssh -o StrictHostKeyChecking=no /var/lib/jenkins/workspace/demo/target/*.war ec2-user@192.168.1.106:~/apache-tomcat-7.0.94/webapps/
-                  ssh ec2-user@192.168.1.106 /home/ec2-user/apache-tomcat-7.0.94/bin/shutdown.sh 
-                  ssh ec2-user@192.168.1.106 /home/ec2-user/apache-tomcat-7.0.94/bin/startup.sh
+                  scp -o StrictHostKeyChecking=no target/WebAppCal-0.2.0.war  ec2-user@172.31.21.61:~/apache-tomcat-7.0.94/webapps/
+                  ssh ec2-user@172.31.21.61 /home/ec2-user/apache-tomcat-7.0.94/bin/shutdown.sh 
+                  ssh ec2-user@172.31.21.61 /home/ec2-user/apache-tomcat-7.0.94/bin/startup.sh
+                  
                 """
        }
      }
