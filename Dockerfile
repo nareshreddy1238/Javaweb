@@ -6,5 +6,6 @@ RUN tar -xvfz apache*.tar.gz
 RUN mv apache-tomcat-7.0.94/* /opt/tomcat/.
 RUN yum -y install java-11*
 WORKDIR /opt/tomcat/apache-tomcat-1.0.94/webapps
+COPY */target/*.war /opt/tomcat/apache-tomcat-1.0.94/webapps
 EXPOSE 8080
 CMD ["/opt/tomcat/bin/catalina.sh", "run"]
