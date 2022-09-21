@@ -1,0 +1,64 @@
+currentBuild.displayName = "Calculator-#"+currentBuild.number
+properties([parameters([choice(choices: ['main', 'dev', 'test', 'pre-prod'], description: 'Select any one of the branch', name: 'branch'), 
+choice(choices: ['ec2-user', 'centos', 'ubuntu'], description: 'select any one of the user', name: 'username'), 
+string(defaultValue: 'nareshreddy1238', description: 'write docker username', name: 'docker_username'), 
+string(defaultValue: 'v6', description: 'write the docker build version', name: 'docker_build_version'), 
+string(defaultValue: '172.31.88.161', description: 'write the tomcat hostname or host ip address ', name: 'tomcat_hostname')])])
+pipeline {
+    agent any
+    stages {
+        stage('Git Checkout') {
+            steps {
+                echo 'Git Checkout'
+                git branch: "${params.branch}", credentialsId: 'gitpwd', url: 'https://github.com/nareshreddy1238/Javaweb.git'
+            }
+        }
+        stage('Validate') {
+            steps {
+                echo 'Validating..'
+                sh 'mvn compile'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'Unit Testing....'
+                sh 'mvn test'
+            }
+        }
+        stage('Package') {
+            steps {
+                echo 'Package....'
+                sh 'mvn clean package'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploy'
+                sshagent(['Build']) {
+                sh "scp -o StrictHostKeyChecking=no target/*.war ${params.username}@${params.tomcat_hostname}:~/apache-tomcat-7.0.94/webapps/"
+                sh "ssh ${params.username}@${params.tomcat_hostname} /home/${params.username}/apache-tomcat-7.0.94/bin/shutdown.sh" 
+                sh "ssh ${params.username}@${params.tomcat_hostname} /home/${params.username}/apache-tomcat-7.0.94/bin/startup.sh"
+        }
+    }
+  }
+     stage('Docker Image Create') {
+            steps {
+            echo 'Docker Image Create'
+            sshagent(['Docker']) {
+            sh "docker build . -t ${params.docker_username}/cal:${params.docker_build_version}"
+          }
+        }
+    }
+        stage('Docker Image Push to Docker Registry') {
+            steps {
+            echo 'Docker Image store to Docker Registry'
+            withCredentials([string(credentialsId: 'Dock', variable: 'Docker_Registry')]) {
+            sh "docker login -u ${params.docker_username} -p ${Docker_Registry}"
+            sh "docker push ${params.docker_username}/cal:${params.docker_build_version}"
+            }
+         }
+    }
+  
+}
+}
+
