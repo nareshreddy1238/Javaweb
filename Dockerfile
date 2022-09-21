@@ -1,11 +1,4 @@
-FROM centos:7
-RUN mkdir /opt/tomcat/
-WORKDIR /opt/tomcat
-RUN curl -O https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.94/bin/apache-tomcat-7.0.94.tar.gz
-RUN tar xvf apache-tomcat-7.0.94.tar.gz
-RUN mv apache-tomcat-7.0.94/* /opt/tomcat/.
-RUN yum -y install java-11*
-WORKDIR /opt/tomcat/webapps
-COPY ./target/*.war /opt/tomcat/webapps
+FROM tomcat:8.0-alpine
+ADD ./target/*.war /usr/local/tomcat/webapps/
 EXPOSE 8080
-CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+CMD [“catalina.sh”, “run”]
