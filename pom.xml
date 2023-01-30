@@ -15,17 +15,18 @@
       <scope>test</scope>
     </dependency>
     <!-- https://mvnrepository.com/artifact/javax.servlet/servlet-api -->
-<dependency>
+  <dependency>
     <groupId>javax.servlet</groupId>
     <artifactId>servlet-api</artifactId>
     <version>2.5</version>
-</dependency>
-    <dependency>
+  </dependency>
+  <dependency>
     <groupId>org.openjdk.jdk</groupId>
     <artifactId>jdk</artifactId>
     <version>17.0.6</version>
-  </dependency>  
-    <build>
+  </dependency>
+ </dependencies>  
+ <build>
   <plugins>
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
@@ -38,5 +39,4 @@
     </plugin>
   </plugins>
 </build>
-</dependencies>
 </project>
